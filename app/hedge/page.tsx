@@ -299,7 +299,9 @@ async function handleMainCallToContract(){
                           </div>
                           <div>
                             <span className="text-muted-foreground">USD Value:</span>
-                            <div  className="font-semibold">${price * Number(depositAmount)}</div>
+                            <div  className="font-semibold">
+                              {price !== null ? `$${(price * Number(depositAmount)).toFixed(2)}` : 'N/A'}
+                            </div>
                           <div>
                             <span className="text-muted-foreground">Duration:</span>
                             <div className="font-semibold">{selectedStrategyData?.duration}</div>

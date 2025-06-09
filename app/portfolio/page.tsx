@@ -81,17 +81,28 @@ export default function Portfolio() {
   useEffect(() => {
     loadBlockchainData();
   }, []);
- async function handleWithdraw(){
-  if(!mainContract){
-
-    const result= await mainContract.withdraw();
-    await result.wait();
+ async function handleWithdraw() {
+  if (!mainContract) {
+    console.error("Main contract is not initialized.");
+    return;
   }
+  const result = await mainContract.withdraw();
+  await result.wait();
  }
   const performanceData = {
     "1M": { return: "+2.8%", value: "$2,432,180", change: "+68,420" },
   };
-  const apy = userBalance * (price - lastPrice);
+  // Calculate APY and related values safely
+  const apy =
+    userBalance !== null &&
+    price !== null &&
+    lastPrice !== null &&
+    !isNaN(userBalance) &&
+    !isNaN(price) &&
+    !isNaN(lastPrice)
+      ? userBalance * (price - lastPrice)
+      : 0;
+
   const holdings = [
     {
       asset: "Ethereum",
@@ -100,7 +111,7 @@ export default function Portfolio() {
       value: userBalance,
       change: apy,
       apy: (
-        ((userBalance * (price - lastPrice)) / (userBalance * lastPrice)) *
+        ((userBalance ?? 0) * ((price ?? 0) - (lastPrice ?? 0)) / ((userBalance ?? 0) * (lastPrice ?? 1))) *
         100
       ).toFixed(2),
       status: "Hedge Fund",
@@ -124,8 +135,8 @@ export default function Portfolio() {
       allocation: "100%",
       return: apy.toFixed(2),
       sharpe: (
-                    ((userBalance * (price - lastPrice)) /
-                      (userBalance * lastPrice)) *
+                    ((userBalance ?? 0) * ((price ?? 0) - (lastPrice ?? 0)) /
+                      ((userBalance ?? 0) * (lastPrice ?? 1))) *
                     100
                   ).toFixed(2),
       status: "Active",
@@ -190,7 +201,7 @@ export default function Portfolio() {
                 </div>
                 <div className="text-3xl font-bold">
                   {" "}
-                  $ {userBalance * price?.toFixed(2)}{" "}
+                  $ {(userBalance !== null && price !== null ? (userBalance * price).toFixed(2) : "0.00")}{" "}
                 </div>
               </div>
               <div>
@@ -211,8 +222,8 @@ export default function Portfolio() {
                 </div>
                 <div className="text-3xl font-bold text-green-400">
                   {(
-                    ((userBalance * (price - lastPrice)) /
-                      (userBalance * lastPrice)) *
+                    (((userBalance ?? 0) * ((price ?? 0) - (lastPrice ?? 0))) /
+                      ((userBalance ?? 0) * (lastPrice ?? 1))) *
                     100
                   ).toFixed(2)}{" "}
                   %
